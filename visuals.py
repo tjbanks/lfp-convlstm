@@ -8,6 +8,7 @@ import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
 import spect
+import scipy
 
 #Specify global variables
 filename = "./data/raw/subjects.mat"
@@ -31,8 +32,13 @@ dataset = matx[start_seconds*sample_rate:end_seconds*sample_rate]
 
 #Generate the spectrogram
 points, freqs, bins = spect.specgram(dataset, sample_rate, time_resolution=spectrogram_time_resolution,
-                                     frequency_resolution=spectrogram_freq_resolution_hz, high_frequency_cutoff=160)
-  
+                                     frequency_resolution=spectrogram_freq_resolution_hz, high_frequency_cutoff=spectrogram_freq_cutoff_hz)
+
+#f, t, Sxx = scipy.signal.spectrogram(dataset, sample_rate, nfft=1028)
+#plt.pcolormesh(t, f[0:20], Sxx[0:20])
+#plt.ylabel('Frequency [Hz]')
+#plt.xlabel('Time [sec]')
+#plt.show()  
 
 # Reshape a numpy array 'a' of shape (n, x) to form shape((n - window_size), window_size, x))
 def rolling_window(a, window, step_size):
@@ -48,3 +54,5 @@ plt.plot(dataset)
 #plt.imshow(points, aspect='auto', origin='lower', extent=extent, vmax=.01)
 #plt.plot(points[:1000])
 
+#Scale
+#min/max scaler
