@@ -18,8 +18,8 @@ warnings.filterwarnings("ignore")
 #Specify global variables
 filename = "./data/raw/subjects.mat"
 sample_rate = fs = 1000
-start_seconds = 0
-end_seconds = 1000
+start_seconds = 10
+end_seconds = 20
 subject_num = 3
 
 spectrogram_time_resolution_ms = 12
@@ -56,6 +56,11 @@ def play_movie(r,r1):
     fig = plt.figure()
     pausetime = .0001
     img = None
+    #Original assumptions
+    #rshape:  (999900, 33, 100)
+    #r1shape:  (999900, 100)
+    #0-80 hz
+    #-1500 to 1500 power
     for i,(f,f1) in enumerate(zip(r,r1)):
         s1 = plt.subplot(212)
         im=f#plt.imread(f)
@@ -81,7 +86,7 @@ def play_movie(r,r1):
             plt.xticks(range(0,101,20),range(i,i+101,20))
             s2.plot(r1[i:i+101,1])
             s2.margins(x=0,y=0)
-            axes.set_ylim([-1500,1500])
+            axes.set_ylim([0,1])
             s2.set_title('LFP')
             plt.xlabel('time (ms)')
             plt.ylabel('power')
@@ -128,10 +133,10 @@ def gen_data():
     #extent = (bins[0], bins[-1], freqs[0], freqs[-1])
     #print(np.shape(bins)," ",np.shape(freqs))
     import scipy.ndimage
-    print(np.shape(points))
-    s = 1000000/np.shape(points)[1]
+    #print(np.shape(points))
+    s = ((end_seconds-start_seconds)*sample_rate)/np.shape(points)[1]
     points = scipy.ndimage.zoom(points, (1,s), order=3)
-    print(np.shape(points))
+    #print(np.shape(points))
     
     #plt.figure()
     #plt.pcolormesh(points)
@@ -143,25 +148,9 @@ def gen_data():
     
     #print(freqs)
     #print("bins: ", bins)
-    x = rolling_window(points, 100, 1)
-    print("X Original Shape: ",np.shape(x))
-    x = np.rollaxis(x,1)
-    print("X New Shape after axis roll: ",np.shape(x))
-    y = rolling_window(dataset, 100, 1)#100 for movie
-    print("Y Shape: ", np.shape(y))
     
-    #play_movie(x,y)
     
-    y = rolling_window(dataset, 110, 1)
-    yy = []
-    for temp in y:
-        yy.append(temp[-1])
-    
-    print("Y Shape 10 out: ",np.shape(yy))
-    x = x[:len(x)-10]
-    print("X New Shape: ",np.shape(x))
-    
-    return x,yy
+    return points,dataset
 
 #Scale
 #min/max scaler
