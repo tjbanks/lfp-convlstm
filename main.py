@@ -84,16 +84,19 @@ def conv_lstm():
     shuffle = False # this is a sequential net
     
     def build_mod():
-        cnn = Sequential()
-        filters = 32
-        filter_size = (2,2)
+        #cnn = Sequential()
+        filters = 128
+        filter_size = (11,2)
         #cnn.add(Reshape((1, 33, 100), input_shape=(33, 100)))
-        cnn.add(Conv2D(filters,filter_size, activation='relu', padding='same',input_shape=(33, 100, 1)))
+        #cnn.add(Conv2D(filters,filter_size, activation='relu', padding='same',input_shape=(33, 100, 1)))
         #cnn.add(MaxPooling2D(pool_size=(3,2)))
-        cnn.add(Flatten())
+        #cnn.add(Flatten())
         model = Sequential()
-        model.add(TimeDistributed(cnn))#,input_shape=(33, 100, 1)))
-        model.add(LSTM(100))
+        model.add(TimeDistributed(Conv2D(filters,filter_size, activation='relu', padding='same'),input_shape=(1,33, 100, 1)))
+        model.add(TimeDistributed(MaxPooling2D(pool_size=(3,2))))
+        model.add(TimeDistributed(Flatten()))
+        model.add(LSTM(100,activation='relu'))
+        model.add(Dense(100,activation='relu'))
         model.add(Dense(1,activation='relu'))
         model.compile(loss='mean_squared_error',
                   optimizer='adam',
