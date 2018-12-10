@@ -87,13 +87,12 @@ def conv_lstm():
         cnn = Sequential()
         filters = 32
         filter_size = (2,2)
-        cnn.add(Reshape((1, 33, 100), input_shape=(None,33, 100)))
-        cnn.add(Conv2D(filters,filter_size, activation='relu', padding='same'))
+        #cnn.add(Reshape((1, 33, 100), input_shape=(33, 100)))
+        cnn.add(Conv2D(filters,filter_size, activation='relu', padding='same',input_shape=(33, 100, 1)))
         #cnn.add(MaxPooling2D(pool_size=(3,2)))
         cnn.add(Flatten())
-        
         model = Sequential()
-        model.add(TimeDistributed(cnn))
+        model.add(TimeDistributed(cnn))#,input_shape=(33, 100, 1)))
         model.add(LSTM(100))
         model.add(Dense(1,activation='relu'))
         model.compile(loss='mean_squared_error',
@@ -102,6 +101,17 @@ def conv_lstm():
         return model
     
     x,y = get_data()
+    
+    print("old shape::: ",np.shape(x))
+    temp = []   
+    def myfunc(arr):
+        temp.append([np.reshape(arr, (33, 100, 1))])
+    #np.apply_along_axis(myfunc, axis=1, arr=x )
+    for a in x:
+        myfunc(a)
+    x = np.array(temp);
+    print("new shape::: ",np.shape(x))
+    
     estimator = KerasClassifier(build_fn=build_mod, epochs=epochs, batch_size=batch, verbose=verbose)
     kfold = KFold(n_splits=knsplits, shuffle=shuffle, random_state=rand_state)
     results = cross_val_score(estimator, x, y, cv=kfold)
